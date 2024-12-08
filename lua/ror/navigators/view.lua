@@ -40,7 +40,7 @@ function M.visit()
       if nvim_notify_ok then
         nvim_notify('No view for model: ' .. model_name, vim.log.levels.ERROR, { title = 'View file not found', timeout = 2500 })
       else
-        vim.notify 'View file not found ..........'
+        vim.notify 'View file not found'
       end
     end
   elseif string.match(current_relative_file_path, 'app/controllers') then
@@ -72,12 +72,16 @@ function M.visit()
         })
         :find()
     else
-      local nvim_notify_ok, nvim_notify = pcall(require, 'notify')
-      if nvim_notify_ok then
-        nvim_notify('No views for controller: ' .. controller_name, vim.log.levels.ERROR, { title = 'View file not found', timeout = 2500 })
-      else
-        vim.notify 'View file not found'
-      end
+      local filename = 'app/views/' .. controller_name .. '/'
+
+      vim.ui.input({ prompt = 'View file not found, create on: ' .. filename, default = 'index.html.erb' }, function(input)
+        if input == nil then
+          return
+        else
+          vim.cmd('!mkdir -p ' .. filename)
+          vim.cmd(':e ' .. filename .. input)
+        end
+      end)
     end
   end
 end
